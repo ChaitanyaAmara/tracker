@@ -67,11 +67,16 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: hsl(var(--background));
+    /* Modern gradient background */
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-attachment: fixed;
     color: hsl(var(--text-primary));
     line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background 0.5s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
 }
 
 /* Container */
@@ -165,6 +170,68 @@ body {
 .summary-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px hsla(var(--shadow) / 0.1);
+}
+
+/* Glassmorphic card style */
+.summary-card, .form-container, .charts-container, .expenses-container {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    border: 1px solid rgba(255,255,255,0.18);
+}
+[data-theme="dark"] .summary-card, [data-theme="dark"] .form-container, [data-theme="dark"] .charts-container, [data-theme="dark"] .expenses-container {
+    background: rgba(34, 40, 49, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Button glow effect */
+.btn-primary {
+    box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+}
+.btn-primary:hover::after {
+    opacity: 1;
+}
+
+/* Animate summary numbers */
+.amount, .count {
+    transition: color 0.3s, transform 0.3s;
+}
+.amount:hover, .count:hover {
+    color: hsl(var(--accent));
+    transform: scale(1.08);
+}
+
+/* Friendly welcome message */
+.welcome-message {
+    text-align: center;
+    font-size: 1.3rem;
+    margin-bottom: var(--spacing-lg);
+    color: hsl(var(--primary));
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.5);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.08);
+}
+[data-theme="dark"] .welcome-message {
+    background: rgba(34, 40, 49, 0.5);
+    color: hsl(var(--accent));
 }
 
 .card-icon {
@@ -929,4 +996,52 @@ body {
     .chart-wrapper {
         height: 250px;
     }
+}
+
+/* Note and Recurring styles for table */
+.expenses-table th:nth-child(5), .expenses-table td:nth-child(5),
+.expenses-table th:nth-child(6), .expenses-table td:nth-child(6) {
+    min-width: 100px;
+    max-width: 200px;
+    word-break: break-word;
+    font-size: var(--font-size-sm);
+    color: hsl(var(--text-secondary));
+}
+
+/* Card note and recurring */
+.card-note, .card-recurring {
+    font-size: var(--font-size-sm);
+    color: hsl(var(--secondary));
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+.card-note i, .card-recurring i {
+    width: 16px;
+    height: 16px;
+    color: hsl(var(--accent));
+}
+
+/* Tooltip style */
+.card-note[title], .card-recurring[title], .expenses-table td[title] {
+    position: relative;
+    cursor: help;
+}
+.card-note[title]:hover::after, .card-recurring[title]:hover::after, .expenses-table td[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 120%;
+    background: rgba(34, 40, 49, 0.95);
+    color: #fff;
+    padding: 0.4em 0.8em;
+    border-radius: 0.4em;
+    font-size: 0.95em;
+    white-space: pre-line;
+    z-index: 10;
+    box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.15);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.2s;
 }

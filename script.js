@@ -92,6 +92,10 @@ class ExpenseTracker {
 
         // Form validation
         this.setupFormValidation();
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            this.exportCSV();
+        });
     }
 
     // Set up real-time form validation
@@ -243,6 +247,8 @@ class ExpenseTracker {
                 amount: parseFloat(formData.get('amount')),
                 category: formData.get('category'),
                 date: formData.get('date'),
+                note: formData.get('note') ? formData.get('note').trim() : '',
+                recurring: formData.get('recurring') || 'none',
                 createdAt: this.editingId ? 
                     this.expenses.find(exp => exp.id === this.editingId).createdAt : 
                     new Date().toISOString()
@@ -327,6 +333,8 @@ class ExpenseTracker {
         document.getElementById('amount').value = expense.amount;
         document.getElementById('category').value = expense.category;
         document.getElementById('date').value = expense.date;
+        document.getElementById('note').value = expense.note || '';
+        document.getElementById('recurring').value = expense.recurring || 'none';
         
         // Update form UI
         document.getElementById('submitBtn').innerHTML = '<i data-feather="save"></i>Update Expense';
@@ -486,6 +494,8 @@ class ExpenseTracker {
                         <span class="category-badge">${expense.category}</span>
                     </td>
                     <td>${this.formatCurrency(expense.amount)}</td>
+                    <td>${this.escapeHtml(expense.note || '')}</td>
+                    <td>${expense.recurring !== 'none' ? this.capitalize(expense.recurring) : '-'}</td>
                     <td>
                         <div class="expense-actions">
                             <button class="action-btn edit-btn" onclick="expenseTracker.editExpense('${expense.id}')" title="Edit">
@@ -535,6 +545,12 @@ class ExpenseTracker {
                             <div class="card-meta">
                                 <span class="card-category">${expense.category}</span>
                                 <span class="card-date">${this.formatDate(expense.date)}</span>
+                            </div>
+                            <div class="card-note" title="${this.escapeHtml(expense.note || '')}">
+                                ${expense.note ? `<i data-feather='message-square'></i> ${this.escapeHtml(expense.note)}` : ''}
+                            </div>
+                            <div class="card-recurring" title="${expense.recurring !== 'none' ? 'Recurring: ' + this.capitalize(expense.recurring) : 'Not recurring'}">
+                                ${expense.recurring !== 'none' ? `<i data-feather='repeat'></i> ${this.capitalize(expense.recurring)}` : ''}
                             </div>
                             <div class="card-actions">
                                 <button class="action-btn edit-btn" onclick="expenseTracker.editExpense('${expense.id}')" title="Edit">
@@ -741,6 +757,10 @@ class ExpenseTracker {
         return div.innerHTML;
     }
 
+    capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     // Local storage functions
     saveExpenses() {
         try {
@@ -760,6 +780,30 @@ class ExpenseTracker {
             this.showToast('Failed to load saved data', 'error');
             return [];
         }
+    }
+
+    // Add exportCSV method
+    exportCSV() {
+        const headers = ['Date', 'Description', 'Category', 'Amount', 'Note', 'Recurring'];
+        const rows = this.expenses.map(exp => [
+            this.formatDate(exp.date),
+            '"' + (exp.description || '').replace(/"/g, '""') + '"',
+            exp.category,
+            exp.amount,
+            '"' + (exp.note || '').replace(/"/g, '""') + '"',
+            exp.recurring !== 'none' ? this.capitalize(exp.recurring) : ''
+        ]);
+        let csvContent = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'expenses.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast('Exported expenses as CSV!', 'success');
     }
 }
 
