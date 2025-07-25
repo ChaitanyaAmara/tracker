@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
-<body>
+<body class="humanized-bg">
     <div class="container">
         <header class="header">
             <div class="header-content">
@@ -21,8 +21,12 @@
                     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
                         <i data-feather="moon"></i>
                     </button>
+                    <button class="export-btn" id="exportBtn" aria-label="Export to CSV">
+                        <i data-feather="download"></i>
+                    </button>
                 </div>
             </div>
+            <p class="welcome-message">Welcome back! Track your expenses and stay on top of your budget.</p>
         </header>
 
         <main class="main-content">
@@ -53,6 +57,15 @@
                         <div class="card-content">
                             <h3>Categories</h3>
                             <p class="count" id="totalCategories">0</p>
+                        </div>
+                    </div>
+                    <div class="summary-card monthly-card">
+                        <div class="card-icon">
+                            <i data-feather="calendar"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>This Month</h3>
+                            <p class="amount" id="monthlyAmount">₹0.00</p>
                         </div>
                     </div>
                 </div>
@@ -217,6 +230,14 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Add a new section for tips -->
+            <section class="tips-section">
+                <div class="tips-container">
+                    <h3>💡 Budget Tip</h3>
+                    <p id="budgetTip">Set a monthly savings goal to build your financial future!</p>
                 </div>
             </section>
         </main>

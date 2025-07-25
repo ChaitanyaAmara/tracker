@@ -5,12 +5,13 @@ class ExpenseTracker {
         this.editingId = null;
         this.currentView = 'table';
         this.chart = null;
-        
+
         this.initializeApp();
         this.setupEventListeners();
         this.setCurrentDate();
         this.updateDisplay();
-        
+        this.setRandomTip(); // <-- Add this
+
         // Initialize Feather Icons
         if (typeof feather !== 'undefined') {
             feather.replace();
@@ -719,11 +720,54 @@ class ExpenseTracker {
         }
     }
 
+    // Monthly summary calculation
+    updateMonthlySummary(expenses = this.expenses) {
+        const now = new Date();
+        const month = now.getMonth();
+        const year = now.getFullYear();
+        const monthlyTotal = expenses
+            .filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === month && d.getFullYear() === year;
+            })
+            .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+        document.getElementById('monthlyAmount').textContent = `₹${monthlyTotal.toFixed(2)}`;
+    }
+
+    // Export to CSV
+    exportToCSV() {
+        let csv = 'Date,Description,Category,Amount\n';
+        this.expenses.forEach(e => {
+            csv += `"${e.date}","${e.description}","${e.category}",${e.amount}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'expenses.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Set random budget tip
+    setRandomTip() {
+        const tips = [
+            "Set a monthly savings goal to build your financial future!",
+            "Review your subscriptions and cancel unused ones.",
+            "Track small expenses—they add up over time.",
+            "Cook at home to save on food costs.",
+            "Automate your savings for consistency."
+        ];
+        document.getElementById('budgetTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+    }
+
     // Utility functions
     formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'INR'
         }).format(amount);
     }
 
@@ -766,6 +810,11 @@ class ExpenseTracker {
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.expenseTracker = new ExpenseTracker();
+
+    // Move event listener here
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        window.expenseTracker.exportToCSV();
+    });
 });
 
 // Add slide out animation for toast removal
